@@ -28,10 +28,50 @@
   color: #475569;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .tabs {
+    flex-direction: row;
+  }
+}
+
+.tab {
+  flex: 1;
+  text-align: left;
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.tab--active {
+  border-color: #6c63ff;
+  box-shadow: 0 10px 25px rgba(108, 99, 255, 0.2);
+}
+
+.tab__label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.tab__description {
+  display: block;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.tab-panel {
+  width: 100%;
 }
 
 .panel {

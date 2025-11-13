@@ -12,9 +12,11 @@ export interface BodmasStep {
   description: string;
 }
 
+type Operator = '^' | '*' | '/' | '+' | '-';
+
 type Token =
   | { type: 'number'; value: number }
-  | { type: 'operator'; value: '^' | '*' | '/' | '+' | '-' }
+  | { type: 'operator'; value: Operator }
   | { type: 'paren'; value: '(' | ')' };
 
 const ruleDescriptions: Record<BodmasRule, string> = {
@@ -47,6 +49,8 @@ const formatNumber = (value: number): number => {
 
 const isDigit = (char: string): boolean => /[0-9]/.test(char);
 
+const isOperator = (value: string): value is Operator => '^*/+-'.includes(value);
+
 const tokenize = (expression: string): Token[] => {
   const tokens: Token[] = [];
   const trimmed = expression.replace(/\s+/g, '');
@@ -75,7 +79,7 @@ const tokenize = (expression: string): Token[] => {
       continue;
     }
 
-    if ('^*/+-'.includes(char)) {
+    if (isOperator(char)) {
       const prev = tokens[tokens.length - 1];
       if (
         char === '-' &&
@@ -105,7 +109,7 @@ const tokenize = (expression: string): Token[] => {
         }
       }
 
-      tokens.push({ type: 'operator', value: char as Token['value'] });
+      tokens.push({ type: 'operator', value: char });
       i += 1;
       continue;
     }

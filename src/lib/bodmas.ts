@@ -218,9 +218,8 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
         throw new EvaluationError('Empty parentheses are not allowed.');
       }
       const innerResult = evaluateTokens(innerTokens, 'Brackets');
-      steps.push(...innerResult.steps);
       const before = tokensToString(tokens);
-      const insideExpr = tokensToString(innerTokens);
+      const operationTokens = tokens.slice(openIndex, closeIndex + 1);
       tokens.splice(openIndex, closeIndex - openIndex + 1, {
         type: 'number',
         value: innerResult.value
@@ -231,7 +230,7 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
         rule: 'Brackets',
         before,
         after,
-        operation: `(${insideExpr})`,
+        operation: tokensToString(operationTokens),
         result: innerResult.value,
         description: ruleDescriptions.Brackets
       });

@@ -288,6 +288,12 @@
   gap: 1rem;
 }
 
+.timeline--nested {
+  margin-top: 0.5rem;
+  padding-left: 0;
+  gap: 0.75rem;
+}
+
 .timeline-item {
   margin: 0;
 }
@@ -325,39 +331,23 @@
   color: #475569;
 }
 
-.step-card__nesting {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.75rem;
-  background: #eef2ff;
-  color: #0f172a;
-  font-size: 0.85rem;
-  font-weight: 600;
-  align-self: flex-start;
-}
-
-.step-card__nesting-label {
-  letter-spacing: 0.01em;
-}
-
-.step-card__nesting-expression {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
-  font-weight: 500;
-  background: #fff;
-  border-radius: 0.55rem;
-  padding: 0.35rem 0.45rem;
-  display: inline-block;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
 .step-card__rule {
   color: #fff;
   border-radius: 999px;
   padding: 0.2rem 0.75rem;
   font-size: 0.85rem;
+}
+
+.step-card__rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.step-card__rule--inactive {
+  background: #e2e8f0;
+  color: #64748b;
 }
 
 .step-card__description {
@@ -372,6 +362,26 @@
   flex-wrap: wrap;
 }
 
+.step-card--nested {
+  border-width: 1px;
+  background: #f8fafc;
+}
+
+.step-card__nested {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(148, 163, 184, 0.6);
+}
+
+.step-card__nested-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
 .step-card__expression-block {
   flex: 1;
   background: #f8fafc;
@@ -384,10 +394,7 @@
 }
 
 .step-card__label {
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #94a3b8;
+  display: none;
 }
 
 .step-card__expression-block code {
@@ -400,7 +407,7 @@
 
 .step-card__arrow {
   font-size: 1.5rem;
-  color: #94a3b8;
+  color: #475569;
   align-self: center;
 }
 

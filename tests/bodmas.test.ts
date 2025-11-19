@@ -21,28 +21,61 @@ describe('evaluateExpression', () => {
     expect(orderStep?.after).toContain('36');
   });
 
-  it('records bracket steps and keeps the inner work visible', () => {
+  it('breaks out bracket work with rule-appropriate steps', () => {
     const { steps } = evaluateExpression('12 / (2 + 1) + 3');
-    const bracketSteps = steps.filter((step) => step.rule === 'grouping');
-    expect(bracketSteps).toHaveLength(2);
+    expect(steps).toHaveLength(3);
 
-    const innerCalculation = bracketSteps.find((step) => step.operation === '2 + 1');
-    expect(innerCalculation?.depth).toBe(1);
+    const groupingStep = steps[0];
+    expect(groupingStep.rule).toBe('grouping');
+    expect(groupingStep.before).toBe('12 / ( 2 + 1 ) + 3');
+    expect(groupingStep.after).toBe('12 / 3 + 3');
+    expect(groupingStep.children).toHaveLength(1);
+    expect(groupingStep.scope).toBe('global');
 
-    const outerCollapse = bracketSteps.find((step) => step.operation.includes('( 2 + 1 )'));
-    expect(outerCollapse?.after).toContain('/ 3 +');
+    const nestedAddition = groupingStep.children?.[0];
+    expect(nestedAddition?.rule).toBe('additionSubtraction');
+    expect(nestedAddition?.before).toBe('12 / ( 2 + 1 ) + 3');
+    expect(nestedAddition?.after).toBe('12 / ( 3 ) + 3');
+    expect(nestedAddition?.scope).toBe('group');
+    expect(nestedAddition?.operator).toBe('+');
+
+    expect(steps[1].rule).toBe('multiplicationDivision');
+    expect(steps[1].before).toBe('12 / 3 + 3');
+    expect(steps[1].after).toBe('4 + 3');
+    expect(steps[1].scope).toBe('global');
+    expect(steps[1].operator).toBe('/');
+
+    expect(steps[2].rule).toBe('additionSubtraction');
+    expect(steps[2].after).toBe('7');
+    expect(steps[2].scope).toBe('global');
+    expect(steps[2].operator).toBe('+');
   });
 
-  it('surfaces nested bracket work with clear depth markers', () => {
+  it('still surfaces bracket depth information', () => {
     const { value, steps } = evaluateExpression('2 * (3 + (4 - 1))');
     expect(value).toBe(12);
 
     const groupingSteps = steps.filter((step) => step.rule === 'grouping');
-    expect(groupingSteps).toHaveLength(4);
-    expect(groupingSteps.map((step) => step.depth)).toEqual([2, 2, 1, 1]);
+    expect(groupingSteps).toHaveLength(2);
+    expect(groupingSteps.map((step) => step.depth)).toEqual([2, 1]);
 
-    const innerOperation = steps.find((step) => step.before.includes('4 - 1'));
-    expect(innerOperation?.depth).toBe(2);
+    expect(groupingSteps[0].before).toContain('( 4 - 1 )');
+    expect(groupingSteps[0].after).toContain('( 3 + 3 )');
+    expect(groupingSteps[0].scope).toBe('group');
+    expect(groupingSteps[0].children).toHaveLength(1);
+    expect(groupingSteps[0].children?.[0].before).toContain('( 4 - 1 )');
+    expect(groupingSteps[0].children?.[0].after).toContain('( 3 )');
+    expect(groupingSteps[0].children?.[0].scope).toBe('group');
+    expect(groupingSteps[0].children?.[0].operator).toBe('-');
+
+    expect(groupingSteps[1].before).toContain('( 3 + 3 )');
+    expect(groupingSteps[1].after).toContain('2 * 6');
+    expect(groupingSteps[1].scope).toBe('global');
+    expect(groupingSteps[1].children).toHaveLength(1);
+    expect(groupingSteps[1].children?.[0].before).toContain('( 3 + 3 )');
+    expect(groupingSteps[1].children?.[0].after).toContain('( 6 )');
+    expect(groupingSteps[1].children?.[0].scope).toBe('group');
+    expect(groupingSteps[1].children?.[0].operator).toBe('+');
   });
 
   it('errors on invalid syntax', () => {

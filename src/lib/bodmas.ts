@@ -8,6 +8,8 @@ export type OrderRule =
   | 'multiplicationDivision'
   | 'additionSubtraction';
 
+export type EvaluationScope = 'global' | 'group';
+
 export interface BodmasStep {
   id: string;
   rule: OrderRule;
@@ -17,6 +19,9 @@ export interface BodmasStep {
   operation: string;
   result: number;
   description: string;
+  scope: EvaluationScope;
+  operator?: Operator;
+  children?: BodmasStep[];
 }
 
 type Operator = '^' | '*' | '/' | '+' | '-';
@@ -26,11 +31,28 @@ type Token =
   | { type: 'operator'; value: Operator }
   | { type: 'paren'; value: '(' | ')' };
 
-const ruleDescriptions: Record<OrderRule, string> = {
-  grouping: 'Resolve parentheses or other grouping symbols first.',
-  exponents: 'Handle exponents, indices, or roots before moving on.',
-  multiplicationDivision: 'Work through multiplication or division from left to right.',
-  additionSubtraction: 'Finish with addition or subtraction from left to right.'
+const describeStep = (
+  rule: OrderRule,
+  operation: string,
+  scope: EvaluationScope,
+  operator?: Operator
+): string => {
+  const trimmedOperation = operation.trim();
+  const locationPhrase = scope === 'group' ? 'inside this group' : 'in the expression';
+  if (rule === 'grouping') {
+    const prefix =
+      scope === 'group' ? 'Inside this group' : 'Based on evaluating groups from left to right';
+    return `${prefix} ${trimmedOperation} must be resolved.`;
+  }
+  if (rule === 'exponents') {
+    return `With grouped parts handled ${locationPhrase}, we evaluate the order ${trimmedOperation} next.`;
+  }
+  if (rule === 'multiplicationDivision') {
+    const action = operator === '/' ? 'division' : 'multiplication';
+    return `There are no brackets or orders ${locationPhrase}, so the next operation is the ${action} ${trimmedOperation}.`;
+  }
+  const action = operator === '-' ? 'subtraction' : 'addition';
+  return `There are no brackets, orders, divisions, or multiplications ${locationPhrase}, so the only operation left is ${action} and we evaluate ${trimmedOperation} now.`;
 };
 
 const conventionLabels: Record<OrderConvention, Record<OrderRule, string>> = {
@@ -187,10 +209,9 @@ const applyBinaryOperator = (
   operator: Token['value'],
   rule: OrderRule,
   steps: BodmasStep[],
-  descriptionOverride?: string,
   iterateReverse = false,
-  contextRule?: OrderRule,
-  depth = 0
+  depth = 0,
+  scope: EvaluationScope = 'global'
 ): void => {
   const indices = [...tokens.keys()];
   if (iterateReverse) {
@@ -214,21 +235,19 @@ const applyBinaryOperator = (
     tokens.splice(index - 1, 3, { type: 'number', value: resultValue });
     const after = tokensToString(tokens);
 
-    const finalRule = contextRule ?? rule;
-    const description =
-      contextRule != null
-        ? ruleDescriptions[contextRule]
-        : descriptionOverride ?? ruleDescriptions[rule];
+    const description = describeStep(rule, tokensToString(operationTokens), scope, token.value);
 
     steps.push({
       id: nanoid(),
-      rule: finalRule,
+      rule,
       depth,
       before,
       after,
       operation: tokensToString(operationTokens),
       result: resultValue,
-      description
+      description,
+      scope,
+      operator: token.value
     });
   }
 };
@@ -246,8 +265,8 @@ const calculateNestingDepth = (tokens: Token[], openIndex: number, baseDepth: nu
 
 const evaluateTokens = (
   inputTokens: Token[],
-  contextRule?: OrderRule,
-  depth = 0
+  depth = 0,
+  scope: EvaluationScope = 'global'
 ): EvaluationResult => {
   const tokens = inputTokens.map((token) => ({ ...token }));
   const steps: BodmasStep[] = [];
@@ -267,8 +286,18 @@ const evaluateTokens = (
         throw new EvaluationError('Empty parentheses are not allowed.');
       }
       const nestingDepth = calculateNestingDepth(tokens, openIndex, depth);
-      const innerResult = evaluateTokens(innerTokens, 'grouping', nestingDepth);
-      steps.push(...innerResult.steps);
+      const groupingScope: EvaluationScope =
+        scope === 'group' || nestingDepth > 1 ? 'group' : 'global';
+      const prefixTokens = tokens.slice(0, openIndex + 1);
+      const suffixTokens = tokens.slice(closeIndex, tokens.length);
+      const contextualize = (expression: string): string =>
+        tokensToString([...prefixTokens, ...tokenize(expression), ...suffixTokens]);
+      const innerResult = evaluateTokens(innerTokens, nestingDepth, 'group');
+      const nestedSteps = innerResult.steps.map((innerStep) => ({
+        ...innerStep,
+        before: contextualize(innerStep.before),
+        after: contextualize(innerStep.after)
+      }));
       const before = tokensToString(tokens);
       const operationTokens = tokens.slice(openIndex, closeIndex + 1);
       tokens.splice(openIndex, closeIndex - openIndex + 1, {
@@ -284,7 +313,9 @@ const evaluateTokens = (
         after,
         operation: tokensToString(operationTokens),
         result: innerResult.value,
-        description: ruleDescriptions.grouping
+        description: describeStep('grouping', tokensToString(operationTokens), groupingScope),
+        scope: groupingScope,
+        children: nestedSteps
       });
 
       closeIndex = tokens.findIndex((token) => token.type === 'paren' && token.value === ')');
@@ -296,16 +327,7 @@ const evaluateTokens = (
   };
 
   const resolveOrders = (): void => {
-    applyBinaryOperator(
-      tokens,
-      '^',
-      'exponents',
-      steps,
-      ruleDescriptions.exponents,
-      true,
-      contextRule,
-      depth
-    );
+    applyBinaryOperator(tokens, '^', 'exponents', steps, true, depth, scope);
   };
 
   const resolveMultiplicationDivision = (): void => {
@@ -320,16 +342,7 @@ const evaluateTokens = (
         break;
       }
       const op = tokens[index];
-      applyBinaryOperator(
-        tokens,
-        op.value,
-        'multiplicationDivision',
-        steps,
-        undefined,
-        false,
-        contextRule,
-        depth
-      );
+      applyBinaryOperator(tokens, op.value, 'multiplicationDivision', steps, false, depth, scope);
       hasMulOrDiv = tokens.some(
         (token) => token.type === 'operator' && (token.value === '*' || token.value === '/')
       );
@@ -348,16 +361,7 @@ const evaluateTokens = (
         break;
       }
       const op = tokens[index];
-      applyBinaryOperator(
-        tokens,
-        op.value,
-        'additionSubtraction',
-        steps,
-        undefined,
-        false,
-        contextRule,
-        depth
-      );
+      applyBinaryOperator(tokens, op.value, 'additionSubtraction', steps, false, depth, scope);
       hasAddOrSub = tokens.some(
         (token) => token.type === 'operator' && (token.value === '+' || token.value === '-')
       );

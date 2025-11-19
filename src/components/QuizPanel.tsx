@@ -76,7 +76,7 @@ const QuizPanel = ({ convention }: Props) => {
     if (status === 'incorrect') {
       return 'Not quite. Review the highlighted steps below.';
     }
-    return 'Select the correct evaluation from the options.';
+    return 'Select the correct solution from the options.';
   }, [status]);
 
   return (

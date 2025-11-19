@@ -32,37 +32,6 @@ const App = () => {
           Type an expression to watch each rule in action, then switch to quiz mode to reinforce
           the process with instant feedback.
         </p>
-
-        <div className="notation-selector">
-          <div>
-            <p className="eyebrow">Notation</p>
-            <p className="notation-selector__description">
-              Choose the mnemonic you use locally—BODMAS, BIRDMAS, or PEMDAS—and we will label
-              each step to match.
-            </p>
-          </div>
-          <div className="notation-toggle" role="group" aria-label="Choose notation mnemonic">
-            {(
-              [
-                { value: 'bodmas', label: 'BODMAS', helper: 'Brackets, Orders, Division/Multiplication' },
-                { value: 'birdmas', label: 'BIRDMAS', helper: 'Brackets, Indices/Roots, Division/Multiplication' },
-                { value: 'pemdas', label: 'PEMDAS', helper: 'Parentheses, Exponents, Multiplication/Division' }
-              ] as Array<{ value: OrderConvention; label: string; helper: string }>
-            ).map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`notation-button ${
-                  convention === option.value ? 'notation-button--active' : ''
-                }`}
-                onClick={() => setConvention(option.value)}
-              >
-                <span className="notation-button__label">{option.label}</span>
-                <span className="notation-button__helper">{option.helper}</span>
-              </button>
-            ))}
-          </div>
-        </div>
       </header>
 
       <nav className="tabs" role="tablist" aria-label="Learning modes">
@@ -92,7 +61,10 @@ const App = () => {
         {activeTab === 'quiz' ? (
           <QuizPanel convention={convention} />
         ) : (
-          <ExpressionVisualizer convention={convention} />
+          <ExpressionVisualizer
+            convention={convention}
+            onConventionChange={(value) => setConvention(value)}
+          />
         )}
       </section>
     </main>

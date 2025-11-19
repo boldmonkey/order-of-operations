@@ -379,6 +379,7 @@
 .step-card__description {
   margin: 0;
   color: #475569;
+  font-size: 0.95rem;
 }
 
 .step-card__work {

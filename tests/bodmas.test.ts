@@ -21,6 +21,14 @@ describe('evaluateExpression', () => {
     expect(orderStep?.after).toContain('36');
   });
 
+  it('records a single bracket step per grouped expression', () => {
+    const { steps } = evaluateExpression('12 / (2 + 1) + 3');
+    const bracketSteps = steps.filter((step) => step.rule === 'Brackets');
+    expect(bracketSteps).toHaveLength(1);
+    expect(bracketSteps[0].before).toContain('( 2 + 1 )');
+    expect(bracketSteps[0].after).toContain('/ 3 +');
+  });
+
   it('errors on invalid syntax', () => {
     expect(() => evaluateExpression('((2+3)')).toThrow(EvaluationError);
   });

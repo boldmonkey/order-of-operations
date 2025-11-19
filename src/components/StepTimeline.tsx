@@ -65,6 +65,11 @@ const StepTimeline = ({
           nestingLevel === 0
             ? 'Top-level step'
             : `Inside ${nestingLevel} bracket level${nestingLevel > 1 ? 's' : ''}`;
+        const nestingHighlight = highlightSegment(
+          step.before,
+          step.operation,
+          getRuleColor(step.rule)
+        );
 
         return (
           <li key={step.id} className="timeline-item">
@@ -80,12 +85,8 @@ const StepTimeline = ({
                   <span className="step-card__index">Step {index + 1}</span>
                   {nestingLevel > 0 && (
                     <span className="step-card__nesting" aria-label={nestingLabel}>
-                      <span className="step-card__nesting-brackets" aria-hidden="true">
-                        {Array.from({ length: nestingLevel }).map((_, bracketIndex) => (
-                          <span key={bracketIndex}>⎡⎣</span>
-                        ))}
-                      </span>
                       <span className="step-card__nesting-label">Nested level {nestingLevel}</span>
+                      <code className="step-card__nesting-expression">{nestingHighlight}</code>
                     </span>
                   )}
                 </div>
@@ -96,34 +97,26 @@ const StepTimeline = ({
                   {getRuleLabel(step.rule, convention)}
                 </span>
               </header>
-            <p className="step-card__description">{step.description}</p>
-            <div className="step-card__work">
-              <div className="step-card__expression-block" aria-label="expression before step">
-                <span className="step-card__label">Before</span>
-                <code>
-                  {highlightSegment(step.before, step.operation, getRuleColor(step.rule))}
-                </code>
+              <p className="step-card__description">{step.description}</p>
+              <div className="step-card__work">
+                <div className="step-card__expression-block" aria-label="expression before step">
+                  <span className="step-card__label">Before</span>
+                  <code>
+                    {highlightSegment(step.before, step.operation, getRuleColor(step.rule))}
+                  </code>
+                </div>
+                <span className="step-card__arrow" aria-hidden="true">
+                  →
+                </span>
+                <div className="step-card__expression-block" aria-label="expression after step">
+                  <span className="step-card__label">After</span>
+                  <code>
+                    {highlightSegment(step.after, step.result.toString(), getRuleColor(step.rule))}
+                  </code>
+                </div>
               </div>
-              <span className="step-card__arrow" aria-hidden="true">
-                →
-              </span>
-              <div className="step-card__expression-block" aria-label="expression after step">
-                <span className="step-card__label">After</span>
-                <code>
-                  {highlightSegment(step.after, step.result.toString(), getRuleColor(step.rule))}
-                </code>
-              </div>
-            </div>
-            <footer className="step-card__footer">
-              <span className="step-card__footer-label">Resolved</span>
-              <div className="step-card__resolution" style={{ color: getRuleColor(step.rule) }}>
-                <code>{step.operation}</code>
-                <span aria-hidden="true">=</span>
-                <strong>{step.result}</strong>
-              </div>
-            </footer>
-          </article>
-        </li>
+            </article>
+          </li>
         );
       })}
     </ol>

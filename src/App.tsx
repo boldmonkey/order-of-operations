@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import ExpressionVisualizer from './components/ExpressionVisualizer';
 import QuizPanel from './components/QuizPanel';
+import type { OrderConvention } from './lib/bodmas';
 import './App.css';
 
 type TabId = 'visualizer' | 'quiz';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState<TabId>('visualizer');
+  const [convention, setConvention] = useState<OrderConvention>('bodmas');
 
   const tabs: Array<{ id: TabId; label: string; description: string }> = [
     {
@@ -25,7 +27,7 @@ const App = () => {
     <main className="app-shell">
       <header className="app-header">
         <p className="eyebrow">Order of Operations Tutor</p>
-        <h1>Master BODMAS with visuals and quizzes</h1>
+        <h1>Master the order of operations with visuals and quizzes</h1>
         <p>
           Type an expression to watch each rule in action, then switch to quiz mode to reinforce
           the process with instant feedback.
@@ -56,7 +58,14 @@ const App = () => {
         id={`${activeTab}-panel`}
         aria-labelledby={`${activeTab}-tab`}
       >
-        {activeTab === 'quiz' ? <QuizPanel /> : <ExpressionVisualizer />}
+        {activeTab === 'quiz' ? (
+          <QuizPanel convention={convention} />
+        ) : (
+          <ExpressionVisualizer
+            convention={convention}
+            onConventionChange={(value) => setConvention(value)}
+          />
+        )}
       </section>
     </main>
   );

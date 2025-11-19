@@ -1,10 +1,14 @@
 import { FormEvent, useEffect, useState } from 'react';
 import StepTimeline from './StepTimeline';
-import { evaluateExpression, EvaluationError, type BodmasStep } from '../lib/bodmas';
+import { evaluateExpression, EvaluationError, type BodmasStep, type OrderConvention } from '../lib/bodmas';
 
 const starterExamples = ['7 + 3 * (6 - 4)', '12 / (2 + 1) + 3', '2 ^ 3 + 4', '6 + 4 / 2'];
 
-const ExpressionVisualizer = () => {
+interface Props {
+  convention: OrderConvention;
+}
+
+const ExpressionVisualizer = ({ convention }: Props) => {
   const [expression, setExpression] = useState(starterExamples[0]);
   const [steps, setSteps] = useState<BodmasStep[]>([]);
   const [result, setResult] = useState<number | null>(null);
@@ -48,7 +52,10 @@ const ExpressionVisualizer = () => {
         <div>
           <p className="eyebrow">Expression explorer</p>
           <h2>Visualise the order of operations</h2>
-          <p>Enter any expression to view each BODMAS step, colour-coded by rule.</p>
+          <p>
+            Enter any expression to see every step of the correct order of operations, labelled
+            for your chosen convention.
+          </p>
         </div>
       </header>
 
@@ -94,7 +101,7 @@ const ExpressionVisualizer = () => {
         </div>
       )}
 
-      <StepTimeline steps={steps} />
+      <StepTimeline steps={steps} convention={convention} />
     </section>
   );
 };

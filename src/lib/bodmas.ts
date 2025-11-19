@@ -1,10 +1,16 @@
 import { nanoid } from '../utils/nanoid';
 
-export type BodmasRule = 'Brackets' | 'Orders' | 'Multiply/Divide' | 'Add/Subtract';
+export type OrderConvention = 'bodmas' | 'birdmas' | 'pemdas';
+
+export type OrderRule =
+  | 'grouping'
+  | 'exponents'
+  | 'multiplicationDivision'
+  | 'additionSubtraction';
 
 export interface BodmasStep {
   id: string;
-  rule: BodmasRule;
+  rule: OrderRule;
   before: string;
   after: string;
   operation: string;
@@ -19,21 +25,46 @@ type Token =
   | { type: 'operator'; value: Operator }
   | { type: 'paren'; value: '(' | ')' };
 
-const ruleDescriptions: Record<BodmasRule, string> = {
-  Brackets: 'Work through grouped expressions first.',
-  Orders: 'Resolve exponents (powers or roots).',
-  'Multiply/Divide': 'Handle multiplication or division before addition/subtraction.',
-  'Add/Subtract': 'Finish with addition or subtraction.'
+const ruleDescriptions: Record<OrderRule, string> = {
+  grouping: 'Resolve parentheses or other grouping symbols first.',
+  exponents: 'Handle exponents, indices, or roots before moving on.',
+  multiplicationDivision: 'Work through multiplication or division from left to right.',
+  additionSubtraction: 'Finish with addition or subtraction from left to right.'
 };
 
-const ruleColors: Record<BodmasRule, string> = {
-  Brackets: '#5e81ac',
-  Orders: '#bf616a',
-  'Multiply/Divide': '#ebcb8b',
-  'Add/Subtract': '#a3be8c'
+const conventionLabels: Record<OrderConvention, Record<OrderRule, string>> = {
+  bodmas: {
+    grouping: 'Brackets',
+    exponents: 'Orders',
+    multiplicationDivision: 'Division/Multiplication',
+    additionSubtraction: 'Addition/Subtraction'
+  },
+  birdmas: {
+    grouping: 'Brackets',
+    exponents: 'Indices/Roots',
+    multiplicationDivision: 'Division/Multiplication',
+    additionSubtraction: 'Addition/Subtraction'
+  },
+  pemdas: {
+    grouping: 'Parentheses',
+    exponents: 'Exponents',
+    multiplicationDivision: 'Multiplication/Division',
+    additionSubtraction: 'Addition/Subtraction'
+  }
 };
 
-export const getRuleColor = (rule: BodmasRule): string => ruleColors[rule];
+const ruleColors: Record<OrderRule, string> = {
+  grouping: '#5e81ac',
+  exponents: '#bf616a',
+  multiplicationDivision: '#ebcb8b',
+  additionSubtraction: '#a3be8c'
+};
+
+export const getRuleColor = (rule: OrderRule): string => ruleColors[rule];
+export const getRuleLabel = (
+  rule: OrderRule,
+  convention: OrderConvention = 'bodmas'
+): string => conventionLabels[convention][rule];
 
 export interface EvaluationResult {
   value: number;
@@ -153,11 +184,11 @@ const compute = (left: number, operator: Token['value'], right: number): number 
 const applyBinaryOperator = (
   tokens: Token[],
   operator: Token['value'],
-  rule: BodmasRule,
+  rule: OrderRule,
   steps: BodmasStep[],
   descriptionOverride?: string,
   iterateReverse = false,
-  contextRule?: BodmasRule
+  contextRule?: OrderRule
 ): void => {
   const indices = [...tokens.keys()];
   if (iterateReverse) {
@@ -199,7 +230,7 @@ const applyBinaryOperator = (
   }
 };
 
-const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): EvaluationResult => {
+const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): EvaluationResult => {
   const tokens = inputTokens.map((token) => ({ ...token }));
   const steps: BodmasStep[] = [];
 
@@ -217,7 +248,7 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
       if (innerTokens.length === 0) {
         throw new EvaluationError('Empty parentheses are not allowed.');
       }
-      const innerResult = evaluateTokens(innerTokens, 'Brackets');
+      const innerResult = evaluateTokens(innerTokens, 'grouping');
       const before = tokensToString(tokens);
       const operationTokens = tokens.slice(openIndex, closeIndex + 1);
       tokens.splice(openIndex, closeIndex - openIndex + 1, {
@@ -227,12 +258,12 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
       const after = tokensToString(tokens);
       steps.push({
         id: nanoid(),
-        rule: 'Brackets',
+        rule: 'grouping',
         before,
         after,
         operation: tokensToString(operationTokens),
         result: innerResult.value,
-        description: ruleDescriptions.Brackets
+        description: ruleDescriptions.grouping
       });
 
       closeIndex = tokens.findIndex((token) => token.type === 'paren' && token.value === ')');
@@ -247,9 +278,9 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
     applyBinaryOperator(
       tokens,
       '^',
-      'Orders',
+      'exponents',
       steps,
-      ruleDescriptions.Orders,
+      ruleDescriptions.exponents,
       true,
       contextRule
     );
@@ -267,7 +298,15 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
         break;
       }
       const op = tokens[index];
-      applyBinaryOperator(tokens, op.value, 'Multiply/Divide', steps, undefined, false, contextRule);
+      applyBinaryOperator(
+        tokens,
+        op.value,
+        'multiplicationDivision',
+        steps,
+        undefined,
+        false,
+        contextRule
+      );
       hasMulOrDiv = tokens.some(
         (token) => token.type === 'operator' && (token.value === '*' || token.value === '/')
       );
@@ -286,7 +325,15 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
         break;
       }
       const op = tokens[index];
-      applyBinaryOperator(tokens, op.value, 'Add/Subtract', steps, undefined, false, contextRule);
+      applyBinaryOperator(
+        tokens,
+        op.value,
+        'additionSubtraction',
+        steps,
+        undefined,
+        false,
+        contextRule
+      );
       hasAddOrSub = tokens.some(
         (token) => token.type === 'operator' && (token.value === '+' || token.value === '-')
       );

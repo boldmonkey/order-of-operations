@@ -1,13 +1,18 @@
 import { useMemo, useState } from 'react';
 import StepTimeline from './StepTimeline';
 import { generateQuestion, type Difficulty } from '../lib/quiz-generator';
+import type { OrderConvention } from '../lib/bodmas';
 
 type Score = {
   correct: number;
   incorrect: number;
 };
 
-const QuizPanel = () => {
+interface Props {
+  convention: OrderConvention;
+}
+
+const QuizPanel = ({ convention }: Props) => {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [question, setQuestion] = useState(() => generateQuestion('medium'));
   const [selected, setSelected] = useState<number | null>(null);
@@ -43,6 +48,9 @@ const QuizPanel = () => {
   };
 
   const handleNext = (): void => {
+    if (status === 'idle') {
+      return;
+    }
     setQuestion(generateQuestion(difficulty));
     setSelected(null);
     setStatus('idle');
@@ -63,7 +71,7 @@ const QuizPanel = () => {
 
   const feedback = useMemo(() => {
     if (status === 'correct') {
-      return 'Great job! You applied BODMAS correctly.';
+      return 'Great job! You applied the order of operations correctly.';
     }
     if (status === 'incorrect') {
       return 'Not quite. Review the highlighted steps below.';
@@ -76,8 +84,11 @@ const QuizPanel = () => {
       <header className="panel__header">
         <div>
           <p className="eyebrow">Quiz mode</p>
-          <h2>Test your BODMAS instincts</h2>
-          <p>Pick the correct solution, then inspect the working to stay sharp.</p>
+          <h2>Test your order of operations instincts</h2>
+          <p>
+            Pick the correct solution, then inspect the working to compare BODMAS, BIRDMAS, and
+            PEMDAS phrasing.
+          </p>
         </div>
       </header>
 
@@ -146,7 +157,12 @@ const QuizPanel = () => {
       {error && <p className="quiz-error">{error}</p>}
 
       <div className="quiz-actions">
-        <button type="button" className="secondary-button" onClick={handleNext}>
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={handleNext}
+          disabled={status === 'idle'}
+        >
           Next Question
         </button>
       </div>
@@ -157,6 +173,7 @@ const QuizPanel = () => {
           <StepTimeline
             steps={question.steps}
             emptyMessage="Steps unavailable for this expression."
+            convention={convention}
           />
         </div>
       )}

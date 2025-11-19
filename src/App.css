@@ -28,6 +28,52 @@
   color: #475569;
 }
 
+.notation-selector {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+  text-align: left;
+}
+
+.notation-selector__description {
+  margin: 0;
+  color: #475569;
+}
+
+.notation-toggle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem;
+}
+
+.notation-button {
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.notation-button--active {
+  border-color: #6c63ff;
+  box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2);
+}
+
+.notation-button__label {
+  display: block;
+  font-weight: 700;
+}
+
+.notation-button__helper {
+  display: block;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
 
 .tabs {
   display: flex;
@@ -138,6 +184,17 @@
 .primary-button:active,
 .secondary-button:active {
   transform: translateY(1px);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.difficulty-button:disabled,
+.notation-button:disabled,
+.quiz-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
 }
 
 .secondary-button {

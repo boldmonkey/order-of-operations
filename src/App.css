@@ -199,6 +199,18 @@
   align-items: center;
 }
 
+@media (max-width: 640px) {
+  .expression-form__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .example-chips {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 .primary-button,
 .secondary-button {
   border: none;
@@ -320,6 +332,14 @@
   align-items: center;
 }
 
+@media (max-width: 640px) {
+  .step-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
 .step-card__meta {
   display: flex;
   flex-direction: column;
@@ -343,6 +363,12 @@
   flex-wrap: wrap;
   gap: 0.35rem;
   justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .step-card__rules {
+    justify-content: flex-start;
+  }
 }
 
 .step-card__rule--inactive {
@@ -431,7 +457,7 @@
   }
 
   .step-card__arrow {
-    transform: rotate(90deg);
+    transform: none;
   }
 }
 

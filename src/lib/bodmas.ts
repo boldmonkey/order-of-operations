@@ -220,6 +220,7 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
       const innerResult = evaluateTokens(innerTokens, 'Brackets');
       steps.push(...innerResult.steps);
       const before = tokensToString(tokens);
+      const operationTokens = tokens.slice(openIndex, closeIndex + 1);
       const insideExpr = tokensToString(innerTokens);
       tokens.splice(openIndex, closeIndex - openIndex + 1, {
         type: 'number',
@@ -231,7 +232,7 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: BodmasRule): Evaluat
         rule: 'Brackets',
         before,
         after,
-        operation: `(${insideExpr})`,
+        operation: tokensToString(operationTokens),
         result: innerResult.value,
         description: ruleDescriptions.Brackets
       });

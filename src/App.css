@@ -314,9 +314,39 @@
   align-items: center;
 }
 
+.step-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 .step-card__index {
   font-weight: 600;
   color: #475569;
+}
+
+.step-card__nesting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.step-card__nesting-brackets {
+  display: inline-flex;
+  gap: 0.15rem;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
+  color: #475569;
+}
+
+.step-card__nesting-label {
+  letter-spacing: 0.01em;
 }
 
 .step-card__rule {

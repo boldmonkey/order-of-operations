@@ -11,6 +11,7 @@ export type OrderRule =
 export interface BodmasStep {
   id: string;
   rule: OrderRule;
+  depth: number;
   before: string;
   after: string;
   operation: string;
@@ -188,7 +189,8 @@ const applyBinaryOperator = (
   steps: BodmasStep[],
   descriptionOverride?: string,
   iterateReverse = false,
-  contextRule?: OrderRule
+  contextRule?: OrderRule,
+  depth = 0
 ): void => {
   const indices = [...tokens.keys()];
   if (iterateReverse) {
@@ -221,6 +223,7 @@ const applyBinaryOperator = (
     steps.push({
       id: nanoid(),
       rule: finalRule,
+      depth,
       before,
       after,
       operation: tokensToString(operationTokens),
@@ -230,7 +233,22 @@ const applyBinaryOperator = (
   }
 };
 
-const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): EvaluationResult => {
+const calculateNestingDepth = (tokens: Token[], openIndex: number, baseDepth: number): number => {
+  let depth = baseDepth;
+  for (let i = 0; i <= openIndex; i += 1) {
+    const token = tokens[i];
+    if (token?.type === 'paren') {
+      depth += token.value === '(' ? 1 : -1;
+    }
+  }
+  return depth;
+};
+
+const evaluateTokens = (
+  inputTokens: Token[],
+  contextRule?: OrderRule,
+  depth = 0
+): EvaluationResult => {
   const tokens = inputTokens.map((token) => ({ ...token }));
   const steps: BodmasStep[] = [];
 
@@ -248,7 +266,9 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): Evaluati
       if (innerTokens.length === 0) {
         throw new EvaluationError('Empty parentheses are not allowed.');
       }
-      const innerResult = evaluateTokens(innerTokens, 'grouping');
+      const nestingDepth = calculateNestingDepth(tokens, openIndex, depth);
+      const innerResult = evaluateTokens(innerTokens, 'grouping', nestingDepth);
+      steps.push(...innerResult.steps);
       const before = tokensToString(tokens);
       const operationTokens = tokens.slice(openIndex, closeIndex + 1);
       tokens.splice(openIndex, closeIndex - openIndex + 1, {
@@ -259,6 +279,7 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): Evaluati
       steps.push({
         id: nanoid(),
         rule: 'grouping',
+        depth: nestingDepth,
         before,
         after,
         operation: tokensToString(operationTokens),
@@ -282,7 +303,8 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): Evaluati
       steps,
       ruleDescriptions.exponents,
       true,
-      contextRule
+      contextRule,
+      depth
     );
   };
 
@@ -305,7 +327,8 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): Evaluati
         steps,
         undefined,
         false,
-        contextRule
+        contextRule,
+        depth
       );
       hasMulOrDiv = tokens.some(
         (token) => token.type === 'operator' && (token.value === '*' || token.value === '/')
@@ -332,7 +355,8 @@ const evaluateTokens = (inputTokens: Token[], contextRule?: OrderRule): Evaluati
         steps,
         undefined,
         false,
-        contextRule
+        contextRule,
+        depth
       );
       hasAddOrSub = tokens.some(
         (token) => token.type === 'operator' && (token.value === '+' || token.value === '-')

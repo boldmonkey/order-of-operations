@@ -59,18 +59,43 @@ const StepTimeline = ({
 
   return (
     <ol className="timeline">
-      {steps.map((step, index) => (
-        <li key={step.id} className="timeline-item">
-          <article className="step-card" style={{ borderColor: getRuleColor(step.rule) }}>
-            <header className="step-card__header">
-              <span className="step-card__index">Step {index + 1}</span>
-              <span
-                className="step-card__rule"
-                style={{ backgroundColor: getRuleColor(step.rule) }}
-              >
-                {getRuleLabel(step.rule, convention)}
-              </span>
-            </header>
+      {steps.map((step, index) => {
+        const nestingLevel = Math.max(0, step.depth || 0);
+        const nestingLabel =
+          nestingLevel === 0
+            ? 'Top-level step'
+            : `Inside ${nestingLevel} bracket level${nestingLevel > 1 ? 's' : ''}`;
+
+        return (
+          <li key={step.id} className="timeline-item">
+            <article
+              className="step-card"
+              style={{
+                borderColor: getRuleColor(step.rule),
+                marginLeft: nestingLevel ? `${nestingLevel * 0.6}rem` : undefined
+              }}
+            >
+              <header className="step-card__header">
+                <div className="step-card__meta">
+                  <span className="step-card__index">Step {index + 1}</span>
+                  {nestingLevel > 0 && (
+                    <span className="step-card__nesting" aria-label={nestingLabel}>
+                      <span className="step-card__nesting-brackets" aria-hidden="true">
+                        {Array.from({ length: nestingLevel }).map((_, bracketIndex) => (
+                          <span key={bracketIndex}>⎡⎣</span>
+                        ))}
+                      </span>
+                      <span className="step-card__nesting-label">Nested level {nestingLevel}</span>
+                    </span>
+                  )}
+                </div>
+                <span
+                  className="step-card__rule"
+                  style={{ backgroundColor: getRuleColor(step.rule) }}
+                >
+                  {getRuleLabel(step.rule, convention)}
+                </span>
+              </header>
             <p className="step-card__description">{step.description}</p>
             <div className="step-card__work">
               <div className="step-card__expression-block" aria-label="expression before step">
@@ -99,7 +124,8 @@ const StepTimeline = ({
             </footer>
           </article>
         </li>
-      ))}
+        );
+      })}
     </ol>
   );
 };

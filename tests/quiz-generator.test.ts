@@ -11,7 +11,7 @@ const createDeterministicRng = () => {
 };
 
 describe('generateQuestion', () => {
-  const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
+  const difficulties: Difficulty[] = ['easy', 'medium', 'hard', 'insane'];
 
   difficulties.forEach((difficulty) => {
     it(`builds accurate ${difficulty} quizzes`, () => {

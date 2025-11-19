@@ -18,7 +18,12 @@ const QuizPanel = () => {
   const difficultyOptions: Array<{ value: Difficulty; label: string; description: string }> = [
     { value: 'easy', label: 'Easy', description: 'Straightforward addition & multiplication' },
     { value: 'medium', label: 'Medium', description: 'Parentheses and mixed operations' },
-    { value: 'hard', label: 'Hard', description: 'Orders plus complex combinations' }
+    { value: 'hard', label: 'Hard', description: 'Orders plus complex combinations' },
+    {
+      value: 'insane',
+      label: 'Insane',
+      description: 'Layered parentheses, exponents, and division twists'
+    }
   ];
 
   const handleSelect = (value: number): void => {

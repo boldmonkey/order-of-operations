@@ -5,16 +5,16 @@ describe('evaluateExpression', () => {
         const { value, steps } = evaluateExpression('2 + 2 * 4');
         expect(value).toBe(10);
         expect(steps).toHaveLength(2);
-        expect(steps[0].rule).toBe('Multiply/Divide');
+        expect(steps[0].rule).toBe('multiplicationDivision');
         expect(steps[0].after).toContain('2 + 8');
-        expect(steps[1].rule).toBe('Add/Subtract');
+        expect(steps[1].rule).toBe('additionSubtraction');
     });
     it('honours brackets and orders', () => {
         const { value, steps } = evaluateExpression('(8 - 2) ^ 2');
         expect(value).toBe(36);
-        const bracketStep = steps.find((step) => step.rule === 'Brackets');
+        const bracketStep = steps.find((step) => step.rule === 'grouping');
         expect(bracketStep).toBeTruthy();
-        const orderStep = steps.find((step) => step.rule === 'Orders');
+        const orderStep = steps.find((step) => step.rule === 'exponents');
         expect(orderStep).toBeTruthy();
         expect(orderStep?.after).toContain('36');
     });

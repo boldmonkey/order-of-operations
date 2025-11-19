@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import type { BodmasStep } from '../lib/bodmas';
-import { getRuleColor } from '../lib/bodmas';
+import type { BodmasStep, OrderConvention } from '../lib/bodmas';
+import { getRuleColor, getRuleLabel } from '../lib/bodmas';
 
 interface Props {
   steps: BodmasStep[];
   emptyMessage?: string;
+  convention?: OrderConvention;
 }
 
 const hexToRgba = (hex: string, alpha: number): string => {
@@ -47,7 +48,11 @@ const highlightSegment = (text: string, target: string, color: string): ReactNod
   );
 };
 
-const StepTimeline = ({ steps, emptyMessage = 'No steps yet. Start by evaluating an expression.' }: Props) => {
+const StepTimeline = ({
+  steps,
+  convention = 'bodmas',
+  emptyMessage = 'No steps yet. Start by evaluating an expression.'
+}: Props) => {
   if (!steps.length) {
     return <p className="timeline-empty">{emptyMessage}</p>;
   }
@@ -63,7 +68,7 @@ const StepTimeline = ({ steps, emptyMessage = 'No steps yet. Start by evaluating
                 className="step-card__rule"
                 style={{ backgroundColor: getRuleColor(step.rule) }}
               >
-                {step.rule}
+                {getRuleLabel(step.rule, convention)}
               </span>
             </header>
             <p className="step-card__description">{step.description}</p>

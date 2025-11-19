@@ -58,29 +58,22 @@ const buildInsaneExpression = (rng: () => number): string => {
   const opPool: Array<'+' | '-' | '*' | '/'> = ['+', '-', '*', '/'];
   const connectorPool: Array<'+' | '-' | '*'> = ['+', '-', '*'];
 
-  const buildNestedGroup = (): string => {
-    const inner = `(${randomInt(2, 15, rng)} ${pick(opPool, rng)} ${randomInt(2, 15, rng)})`;
-    const middle = `(${randomInt(2, 15, rng)} ${pick(opPool, rng)} ${inner})`;
-    const flank = `(${randomInt(2, 15, rng)} ${pick(opPool, rng)} ${randomInt(2, 15, rng)})`;
-    return `(${middle} ${pick(opPool, rng)} ${flank})`;
-  };
-
-  const buildExponentCascade = (): string => {
-    const base = `(${randomInt(2, 10, rng)} ${pick(opPool, rng)} (${randomInt(2, 10, rng)} ${pick(opPool, rng)} ${randomInt(2, 10, rng)}))`;
+  const buildPowerSegment = (): string => {
+    const baseGroup = `(${randomInt(2, 12, rng)} ${pick(opPool, rng)} ${randomInt(2, 12, rng)})`;
     const exponent = randomInt(2, 3, rng);
-    const scaler = `${pick(['*', '/'], rng)} ${randomInt(2, 9, rng)}`;
-    return `(${base} ^ ${exponent} ${scaler})`;
+    const adjuster = `(${randomInt(2, 12, rng)} ${pick(opPool, rng)} ${randomInt(2, 12, rng)})`;
+    return `(${baseGroup} ^ ${exponent} ${pick(connectorPool, rng)} ${adjuster})`;
   };
 
-  const buildFractionChain = (): string => {
-    const numerator = `(${randomInt(3, 18, rng)} ${pick(opPool, rng)} (${randomInt(3, 18, rng)} ${pick(opPool, rng)} ${randomInt(3, 18, rng)}))`;
-    const denominator = `(${randomInt(2, 9, rng)} + (${randomInt(2, 9, rng)} / ${randomInt(2, 9, rng)}))`;
-    return `(${numerator} / ${denominator})`;
+  const buildMixedGroup = (): string => {
+    const first = `(${randomInt(3, 15, rng)} ${pick(opPool, rng)} ${randomInt(3, 15, rng)})`;
+    const second = `(${randomInt(3, 15, rng)} ${pick(opPool, rng)} ${randomInt(3, 15, rng)})`;
+    return `(${first} ${pick(['*', '/'], rng)} ${second})`;
   };
 
   const combine = (left: string, right: string): string => `${left} ${pick(connectorPool, rng)} ${right}`;
 
-  return combine(combine(buildNestedGroup(), buildExponentCascade()), buildFractionChain());
+  return combine(combine(buildPowerSegment(), buildPowerSegment()), buildMixedGroup());
 };
 
 const buildExpression = (difficulty: Difficulty, rng: () => number): string => {

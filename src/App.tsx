@@ -59,7 +59,7 @@ const App = () => {
         aria-labelledby={`${activeTab}-tab`}
       >
         {activeTab === 'quiz' ? (
-          <QuizPanel convention={convention} />
+          <QuizPanel convention={convention} onConventionChange={(value) => setConvention(value)} />
         ) : (
           <ExpressionVisualizer
             convention={convention}

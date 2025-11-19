@@ -327,10 +327,10 @@
 
 .step-card__nesting {
   display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.75rem;
   background: #eef2ff;
   color: #0f172a;
   font-size: 0.85rem;
@@ -338,15 +338,19 @@
   align-self: flex-start;
 }
 
-.step-card__nesting-brackets {
-  display: inline-flex;
-  gap: 0.15rem;
-  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
-  color: #475569;
-}
-
 .step-card__nesting-label {
   letter-spacing: 0.01em;
+}
+
+.step-card__nesting-expression {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
+  font-weight: 500;
+  background: #fff;
+  border-radius: 0.55rem;
+  padding: 0.35rem 0.45rem;
+  display: inline-block;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .step-card__rule {
@@ -389,7 +393,8 @@
 .step-card__expression-block code {
   font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
   font-size: 0.95rem;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  word-break: break-word;
   overflow-x: auto;
 }
 
@@ -404,32 +409,6 @@
   padding: 0.05rem 0.25rem;
   font-weight: 600;
   border: 1px solid transparent;
-}
-
-.step-card__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-}
-
-.step-card__footer-label {
-  font-size: 0.9rem;
-  color: #475569;
-  font-weight: 500;
-}
-
-.step-card__resolution {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.step-card__resolution code {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
-  background: #f1f5f9;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.35rem;
 }
 
 .quiz-controls {
@@ -583,6 +562,18 @@
 
 .quiz-solution h3 {
   margin: 0 0 0.5rem;
+}
+
+.quiz-solution__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quiz-solution .convention-switcher {
+  align-items: flex-start;
 }
 
 .sr-only {

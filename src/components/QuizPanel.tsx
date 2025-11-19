@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import ConventionToggle from './ConventionToggle';
 import StepTimeline from './StepTimeline';
 import { generateQuestion, type Difficulty } from '../lib/quiz-generator';
 import type { OrderConvention } from '../lib/bodmas';
@@ -10,9 +11,10 @@ type Score = {
 
 interface Props {
   convention: OrderConvention;
+  onConventionChange: (value: OrderConvention) => void;
 }
 
-const QuizPanel = ({ convention }: Props) => {
+const QuizPanel = ({ convention, onConventionChange }: Props) => {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [question, setQuestion] = useState(() => generateQuestion('medium'));
   const [selected, setSelected] = useState<number | null>(null);
@@ -169,7 +171,15 @@ const QuizPanel = ({ convention }: Props) => {
 
       {status !== 'idle' && (
         <div className="quiz-solution">
-          <h3>Solution steps</h3>
+          <div className="quiz-solution__header">
+            <h3>Solution steps</h3>
+            <ConventionToggle
+              convention={convention}
+              onChange={onConventionChange}
+              ariaLabel="Choose mnemonic for solution labels"
+              label="View steps as"
+            />
+          </div>
           <StepTimeline
             steps={question.steps}
             emptyMessage="Steps unavailable for this expression."

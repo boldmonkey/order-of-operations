@@ -23,14 +23,9 @@ const QuizPanel = ({ convention, onConventionChange }: Props) => {
   const [score, setScore] = useState<Score>({ correct: 0, incorrect: 0 });
 
   const difficultyOptions: Array<{ value: Difficulty; label: string; description: string }> = [
-    { value: 'easy', label: 'Easy', description: 'Straightforward addition & multiplication' },
-    { value: 'medium', label: 'Medium', description: 'Parentheses and mixed operations' },
-    { value: 'hard', label: 'Hard', description: 'Orders plus complex combinations' },
-    {
-      value: 'insane',
-      label: 'Insane',
-      description: 'Layered parentheses, exponents, and division twists'
-    }
+    { value: 'easy', label: 'Easy', description: 'Layered arithmetic with grouped steps' },
+    { value: 'medium', label: 'Medium', description: 'Exponents mixed with brackets and products' },
+    { value: 'hard', label: 'Hard', description: 'Nested brackets, exponents, and multi-step combos' }
   ];
 
   const handleSelect = (value: number): void => {

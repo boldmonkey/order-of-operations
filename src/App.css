@@ -296,6 +296,133 @@
   }
 }
 
+.notation-card {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.6), rgba(241, 245, 249, 0.3));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.notation-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.notation-card__eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.notation-card__hint {
+  margin: 0;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.notation-card__placeholder,
+.notation-card__error {
+  margin: 0;
+  color: var(--muted);
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.notation-card__error {
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.12);
+}
+
+.notation-card__preview {
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.05rem;
+  overflow-x: auto;
+}
+
+.math-binary,
+.math-power,
+.math-group,
+.math-number {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.math-operator {
+  margin: 0 0.2rem;
+  font-weight: 700;
+}
+
+.math-number {
+  font-variant-numeric: tabular-nums;
+}
+
+.math-parenthesis {
+  font-weight: 700;
+}
+
+.math-superscript {
+  font-size: 0.68em;
+  line-height: 1;
+}
+
+.math-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 1.6rem;
+}
+
+.math-fraction__numerator,
+.math-fraction__denominator {
+  padding: 0 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.math-fraction__bar {
+  width: 100%;
+  border-top: 1px solid currentColor;
+  margin: -0.1rem 0;
+}
+
+.math-root {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.math-root__symbol {
+  font-size: 1.2em;
+  transform: translateY(0.05em);
+}
+
+.math-root__radicand {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.2rem 0 0.25rem;
+  border-top: 1px solid currentColor;
+  min-height: 1.3rem;
+}
+
+.math-root__index {
+  font-size: 0.7em;
+  transform: translateY(-0.4em);
+}
+
 button:focus-visible,
 textarea:focus-visible,
 input:focus-visible {

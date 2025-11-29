@@ -24,9 +24,9 @@ export interface BodmasStep {
   children?: BodmasStep[];
 }
 
-type Operator = '^' | '*' | '/' | '+' | '-';
+export type Operator = '^' | '*' | '/' | '+' | '-';
 
-type Token =
+export type Token =
   | { type: 'number'; value: number }
   | { type: 'operator'; value: Operator }
   | { type: 'paren'; value: '(' | ')' };
@@ -96,7 +96,7 @@ export interface EvaluationResult {
 
 export class EvaluationError extends Error {}
 
-const formatNumber = (value: number): number => {
+export const formatNumber = (value: number): number => {
   const rounded = Number(parseFloat(value.toFixed(6)));
   return Number.isInteger(rounded) ? Math.trunc(rounded) : rounded;
 };
@@ -105,7 +105,7 @@ const isDigit = (char: string): boolean => /[0-9]/.test(char);
 
 const isOperator = (value: string): value is Operator => '^*/+-'.includes(value);
 
-const tokenize = (expression: string): Token[] => {
+export const tokenize = (expression: string): Token[] => {
   const tokens: Token[] = [];
   const trimmed = expression.replace(/\s+/g, '');
   let i = 0;

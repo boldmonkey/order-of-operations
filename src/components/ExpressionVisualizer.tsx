@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import ConventionToggle from './ConventionToggle';
+import ExpressionNotation from './ExpressionNotation';
 import StepTimeline from './StepTimeline';
 import {
   evaluateExpression,
@@ -101,6 +102,8 @@ const ExpressionVisualizer = ({ convention, onConventionChange }: Props) => {
           </div>
         </div>
       </form>
+
+      <ExpressionNotation expression={expression} />
 
       {error ? (
         <p role="alert" className="error-text">
